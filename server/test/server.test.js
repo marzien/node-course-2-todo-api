@@ -9,23 +9,43 @@ beforeEach((done) => {
 });
 
 describe('POST /todos', () => {
-    it('sould create a new toto', (done) => {
+    it('should create a new todo', (done) => {
         var text = 'Test todo text';
+
         request(app)
-            .post('./todos')
+            .post('/todos')
             .send({text})
             .expect(200)
-            .expect(res.body.text).toBe(text);
-    })
-        .end((err, res) => {
-            if((err) => {
-                return done(err);
+            .expect((res) => {
+                expect(res.body.text).toBe(text);
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
                 }
+
                 Todo.find().then((todos) => {
                     expect(todos.length).toBe(1);
-                    expect(todos[0].text)toBe(text);
+                    expect(todos[0].text).toBe(text);
                     done();
                 }).catch((e) => done(e));
-        });
+            });
+    });
+
+    it('should not create todo with invalid body data', (done) => {
+        request(app)
+            .post('/todos')
+            .send({})
+            .expect(400)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+
+                Todo.find().then((todos) => {
+                    expect(todos.length).toBe(0);
+                    done();
+                }).catch((e) => done(e));
+            });
     });
 });
